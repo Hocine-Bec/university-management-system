@@ -31,6 +31,7 @@ namespace Infrastructure
             services.AddScoped<IEntranceExamRepository, EntranceExamRepository>();
             services.AddScoped<IInterviewRepository, InterviewRepository>();
             services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+            services.AddScoped<ISemesterRepository, SemesterRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
             
             //Unit of work pattern

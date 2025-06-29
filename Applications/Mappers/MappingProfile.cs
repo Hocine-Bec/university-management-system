@@ -18,6 +18,7 @@ namespace Applications.Mappers
             ApplyEntranceExamMapping();
             ApplyInterviewMapping();
             ApplyEnrollmentMapping();
+            ApplySemesterMapping();
             ApplyCourseMapping();
         }
 
@@ -34,6 +35,7 @@ namespace Applications.Mappers
         partial void ApplyEntranceExamMapping();
         partial void ApplyInterviewMapping();
         partial void ApplyEnrollmentMapping();
+        partial void ApplySemesterMapping(); 
         partial void ApplyCourseMapping();
     }
 }
