@@ -143,8 +143,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("service_application_id");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("enrollment_status");
+                        .HasColumnType("integer");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("integer")
@@ -434,62 +433,6 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("ix_programs_code");
 
                     b.ToTable("programs", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.Semester", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<DateTime?>("RegEndsAt")
-                        .HasColumnType("date")
-                        .HasColumnName("registration_end_date");
-
-                    b.Property<DateTime?>("RegStartsAt")
-                        .HasColumnType("date")
-                        .HasColumnName("registration_start_date");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.Property<string>("Term")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("term");
-
-                    b.Property<string>("TermCode")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("varchar")
-                        .HasColumnName("term_code");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("integer")
-                        .HasColumnName("year");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Year", "Term")
-                        .IsUnique()
-                        .HasDatabaseName("ix_semesters_year_term");
-
-                    b.ToTable("semesters", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ServiceApplication", b =>

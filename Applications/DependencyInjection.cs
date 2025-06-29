@@ -26,7 +26,6 @@ namespace Applications
             services.AddScoped<IEntranceExamService, EntranceExamService>();
             services.AddScoped<IInterviewService, InterviewService>();
             services.AddScoped<IEnrollmentService, EnrollmentService>();
-            services.AddScoped<ISemesterService, SemesterService>();
             
             
             return services;
