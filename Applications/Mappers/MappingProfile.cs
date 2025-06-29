@@ -18,6 +18,7 @@ namespace Applications.Mappers
             ApplyEntranceExamMapping();
             ApplyInterviewMapping();
             ApplyEnrollmentMapping();
+            ApplySemesterMapping();
         }
 
         //Method signatures
@@ -33,5 +34,6 @@ namespace Applications.Mappers
         partial void ApplyEntranceExamMapping();
         partial void ApplyInterviewMapping();
         partial void ApplyEnrollmentMapping();
+        partial void ApplySemesterMapping();
     }
 }
