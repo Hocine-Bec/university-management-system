@@ -18,6 +18,7 @@ namespace Infrastructure.Data
         public DbSet<Interview> Interviews { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Semester> Semesters { get; set; }
+        public DbSet<Course> Courses { get; set; }
         
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
