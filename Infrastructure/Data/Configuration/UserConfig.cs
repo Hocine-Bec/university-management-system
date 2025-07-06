@@ -26,10 +26,6 @@ namespace Infrastructure.Data.Configuration
                 .HasMaxLength(255)
                 .IsRequired();
 
-            builder.Property(u => u.Role)
-                .HasColumnName("role")
-                .HasConversion<int>();
-
             builder.Property(u => u.IsActive)
                 .HasColumnName("is_active")
                 .HasDefaultValue(true)

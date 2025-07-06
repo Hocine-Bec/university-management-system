@@ -24,7 +24,9 @@ namespace Infrastructure.Data
         public DbSet<Registration> Registrations { get; set; }
         public DbSet<Grade> Grades { get; set; }
         public DbSet<FinancialHold> FinancialHolds { get; set; }
-
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
