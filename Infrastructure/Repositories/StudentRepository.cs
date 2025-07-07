@@ -22,7 +22,7 @@ namespace Infrastructure.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public override async Task<IEnumerable<Student>> GetListAsync()
+        public override async Task<IReadOnlyCollection<Student>> GetListAsync()
         {
             return await _context.Set<Student>()
                 .AsNoTracking()

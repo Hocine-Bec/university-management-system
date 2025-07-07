@@ -1,4 +1,5 @@
 ﻿using Applications.Interfaces.Base;
+using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ namespace Infrastructure.Repositories.Base
                 .FirstOrDefaultAsync(x => x.Id.Equals(id));
         }
 
-        public virtual async Task<IEnumerable<TEntity>> GetListAsync()
+        public virtual async Task<IReadOnlyCollection<TEntity>> GetListAsync()
         {
             return await _context.Set<TEntity>()
                 .AsNoTracking()
