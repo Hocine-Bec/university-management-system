@@ -15,6 +15,11 @@ public class UserRoleConfig : IEntityTypeConfiguration<UserRole>
             .HasColumnName("Id")
             .ValueGeneratedOnAdd();
         
+        builder.Property(x => x.IsActive)
+            .HasColumnName("is_active")
+            .HasDefaultValue(true)
+            .IsRequired();
+        
         builder.Property(x => x.UserId)
             .HasColumnName("user_id");
         
