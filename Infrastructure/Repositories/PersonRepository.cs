@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public override async Task<IEnumerable<Person>> GetListAsync()
+        public override async Task<IReadOnlyCollection<Person>> GetListAsync()
         {
             return await _context.People
                 .AsNoTracking()

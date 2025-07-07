@@ -19,7 +19,7 @@ public class ServiceApplicationRepository(AppDbContext context) : GenericReposit
                            (x.Status == ApplicationStatus.New || x.Status == ApplicationStatus.InProgress));
     }
 
-    public override async Task<IEnumerable<ServiceApplication>> GetListAsync()
+    public override async Task<IReadOnlyCollection<ServiceApplication>> GetListAsync()
     {
         return await _context.ServiceApplications
             .AsNoTracking()

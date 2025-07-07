@@ -17,7 +17,7 @@ public class DocsVerificationRepository(AppDbContext context)
             .FirstOrDefaultAsync(x => x.PersonId == personId);
     }
     
-    public override async Task<IEnumerable<DocsVerification>> GetListAsync()
+    public override async Task<IReadOnlyCollection<DocsVerification>> GetListAsync()
     {
         return await _context.DocsVerifications
             .AsNoTracking()
