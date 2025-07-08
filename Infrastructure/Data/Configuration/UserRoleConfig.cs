@@ -12,7 +12,7 @@ public class UserRoleConfig : IEntityTypeConfiguration<UserRole>
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
-            .HasColumnName("Id")
+            .HasColumnName("id")
             .ValueGeneratedOnAdd();
         
         builder.Property(x => x.IsActive)
@@ -33,7 +33,7 @@ public class UserRoleConfig : IEntityTypeConfiguration<UserRole>
         
         builder.HasOne(x => x.Role)
             .WithMany(x => x.UserRoles)
-            .HasForeignKey(x => x.UserId)
+            .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(x => new { x.UserId, x.RoleId })
