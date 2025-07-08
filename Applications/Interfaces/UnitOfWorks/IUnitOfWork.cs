@@ -23,6 +23,8 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     IRegistrationRepository Registrations { get; }
     IGradeRepository Grades { get; }
     IFinancialHoldRepository FinancialHolds { get;}
+    IRoleRepository Roles { get; }
+    IUserRoleRepository UserRoles { get; }
     
     Task<int> CompleteAsync();
 }
