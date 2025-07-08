@@ -76,7 +76,9 @@ namespace Infrastructure
             services.AddScoped<IRegistrationRepository, RegistrationRepository>();
             services.AddScoped<IGradeRepository, GradeRepository>();
             services.AddScoped<IFinancialHoldRepository, FinancialHoldRepository>();
-
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+            
             //Unit of work pattern
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

@@ -4,10 +4,10 @@ namespace Applications.Interfaces.Base
 {
     public interface IGenericRepository<TEntity> where TEntity : class, IEntity
     {
-        Task<IEnumerable<TEntity>> GetListAsync();
-        Task<TEntity?> GetByIdAsync(int id);
-        Task<int> AddAsync(TEntity entity);
-        Task<bool> UpdateAsync(TEntity entity);
-        Task<bool> DeleteAsync(int id);
+        public Task<IReadOnlyCollection<TEntity>> GetListAsync();
+        public Task<TEntity?> GetByIdAsync(int id);
+        public Task<int> AddAsync(TEntity entity);
+        public Task<bool> UpdateAsync(TEntity entity);
+        public Task<bool> DeleteAsync(int id);
     }
 }
