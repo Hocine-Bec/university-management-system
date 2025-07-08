@@ -8,7 +8,7 @@ namespace Presentation.Controllers;
 
 [ApiController]
 [Route("api/courses")]
-[Authorize]
+[AllowAnonymous]
 public class CoursesController(ICourseService service) : ControllerBase
 {
     [HttpGet]
