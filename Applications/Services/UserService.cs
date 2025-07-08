@@ -1,5 +1,4 @@
 ﻿using Applications.DTOs.Users;
-using Applications.Helpers;
 using Applications.Interfaces.Auth;
 using Applications.Interfaces.Logging;
 using Applications.Interfaces.Repositories;
@@ -71,7 +70,6 @@ namespace Applications.Services
                     ErrorType.InternalServerError);
             }
         }
-
         public async Task<Result<UserResponse>> GetByUsernameAsync(string username)
         {
             if (string.IsNullOrEmpty(username))
@@ -93,7 +91,6 @@ namespace Applications.Services
                     ErrorType.InternalServerError);
             }
         }
-
         public async Task<Result<UserResponse>> AddAsync(CreateUserRequest request)
         {
             if (request == default)
@@ -122,7 +119,6 @@ namespace Applications.Services
                     ErrorType.InternalServerError);
             }
         }
-
         public async Task<Result> DeleteAsync(int id)
         {
             if (id <= 0)
@@ -139,7 +135,6 @@ namespace Applications.Services
                 return Result.Failure("Failed to delete user due to a system error", ErrorType.InternalServerError);
             }
         }
-
         public async Task<Result> DeleteAsync(string username)
         {
             if (string.IsNullOrEmpty(username))
@@ -156,7 +151,6 @@ namespace Applications.Services
                 return Result.Failure("Failed to delete user due to a system error", ErrorType.InternalServerError);
             }
         }
-
         public async Task<Result> UpdateAsync(int id, UpdateUserRequest request)
         {
             if (request == default)
@@ -179,7 +173,6 @@ namespace Applications.Services
                 return Result.Failure("Failed to update user due to a system error", ErrorType.InternalServerError);
             }
         }
-
         public async Task<Result> ChangePasswordAsync(int id, ChangePasswordRequest request)
         {
             if (id <= 0)
@@ -210,33 +203,25 @@ namespace Applications.Services
                 return Result.Failure("Failed to update user password due to a system error", ErrorType.InternalServerError);
             }
         }
-
-        public async Task<Result> UpdateUserRoleAsync(int id, UpdateUserRoleRequest roleStatus)
+        public async Task<Result<IReadOnlyCollection<UserResponse>>> GetByRoleAsync(int roleId)
         {
-            if (id <= 0)
-                return Result.Failure("Invalid user ID provided", ErrorType.BadRequest);
-
-            if (!roleStatus.Role.HasValue)
-                return Result.Failure("No role Value Provided", ErrorType.BadRequest);
+            if (roleId <= 0)
+                return Result<IReadOnlyCollection<UserResponse>>.Failure("Invalid role ID", ErrorType.BadRequest);
 
             try
             {
-                var user = await _repository.GetByIdAsync(id);
-                if (user == null)
-                    return Result.Failure($"User not found", ErrorType.NotFound);
-
-                user.Role = roleStatus.Role.Value;
-                var isUpdated = await _repository.UpdateAsync(user);
-                return !isUpdated ? Result.Failure($"Failed to update user role", ErrorType.BadRequest) : Result.Success;
+                var users = await _repository.GetByRoleAsync(roleId);
+                if (!users.Any())
+                    return Result<IReadOnlyCollection<UserResponse>>.Failure("No users found", ErrorType.NotFound);
+                
+                var response = _mapper.Map<IReadOnlyCollection<UserResponse>>(users);
+                return Result<IReadOnlyCollection<UserResponse>>.Success(response);
             }
             catch (Exception ex)
             {
-                var roleName = roleStatus.ToString();
-                _logger.LogError("Database error updating user", ex, new { roleName });
-                return Result.Failure("Failed to update user due to a system error",
-                    ErrorType.InternalServerError);
+                _logger.LogError("Error retrieving users by role", ex, new { roleId });
+                return Result<IReadOnlyCollection<UserResponse>>.Failure("Failed to retrieve users", ErrorType.InternalServerError);
             }
         }
-
     }
 }

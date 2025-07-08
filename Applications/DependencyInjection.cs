@@ -33,6 +33,8 @@ namespace Applications
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<IGradeService, GradeService>();
             services.AddScoped<IFinancialHoldService, FinancialHoldService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
             
             //Authentication
             services.AddScoped<IAuthenticationService, AuthenticationService>();
