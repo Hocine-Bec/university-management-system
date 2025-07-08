@@ -8,5 +8,6 @@ namespace Applications.Interfaces.Repositories
         Task<User?> GetByUsernameAsync(string username);
         Task<bool> DeleteAsync(string username);
         Task<bool> DoesExistAsync(int personId);
+        Task<IReadOnlyCollection<User>> GetByRoleAsync(int roleId);
     }
 }
