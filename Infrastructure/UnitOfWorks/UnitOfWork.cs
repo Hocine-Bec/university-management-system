@@ -27,6 +27,8 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     private IRegistrationRepository? _registrations;
     private IGradeRepository? _grades;
     private IFinancialHoldRepository? _financialHolds;
+    private IRoleRepository? _roles;
+    private IUserRoleRepository? _userRoles;
 
     // Properties with lazy initialization - all repositories share the same context
     public ICountryRepository Countries => _countries ??= new CountryRepository(context);
@@ -48,6 +50,8 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public IRegistrationRepository Registrations => _registrations ??= new RegistrationRepository(context);
     public IGradeRepository Grades => _grades ??= new GradeRepository(context);
     public IFinancialHoldRepository FinancialHolds => _financialHolds ??= new FinancialHoldRepository(context);
+    public IRoleRepository Roles => _roles ??= new RoleRepository(context);
+    public IUserRoleRepository UserRoles => _userRoles ??= new UserRoleRepository(context);
 
     public async Task<int> CompleteAsync() => await context.SaveChangesAsync();
 
