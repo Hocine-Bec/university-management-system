@@ -33,7 +33,7 @@ public class JwtTokenService : IJwtTokenService
             expires: DateTime.UtcNow.AddMinutes(30),
             signingCredentials: credentials
         );
-        
+
         return new JwtSecurityTokenHandler().WriteToken(token);   
     }
     
@@ -60,16 +60,23 @@ public class JwtTokenService : IJwtTokenService
         return DateTimeOffset.UtcNow.AddMinutes(_jwtSettings.LifeTime);
     }
     
-    private Claim[] GetUserClaims(User user)
+    private List<Claim> GetUserClaims(User user)
     {
-        return new[]
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
+            new (ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new (ClaimTypes.Name, user.Username),
+            new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new (JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                 ClaimValueTypes.Integer64)
         };
+        
+        foreach (var role in user.UserRoles)
+        {
+            claims.Add(new(ClaimTypes.Role, role.Role.Name.ToString()));
+        }
+
+        return claims;
     }
 }

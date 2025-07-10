@@ -10,7 +10,7 @@ namespace Infrastructure.Repositories;
 public class EnrollmentRepository(AppDbContext context) : GenericRepository<Enrollment>(context), IEnrollmentRepository
 {
     // Additional methods specific to Program can be added here
-    public override async Task<IEnumerable<Enrollment>> GetListAsync()
+    public override async Task<IReadOnlyCollection<Enrollment>> GetListAsync()
     {
         return await _context.Enrollments
             .AsNoTracking()
