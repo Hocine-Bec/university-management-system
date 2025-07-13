@@ -1,6 +1,6 @@
 namespace Applications.DTOs.Professor;
 
-public record struct ProfessorRequest()
+public record struct ProfessorRequest
 {
     public int? AcademicRank { get; set; }
     public DateTime? HireDate { get; set; }
