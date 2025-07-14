@@ -1,5 +1,6 @@
 using Domain.Entities;
 using FluentAssertions;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using UnitTests.Common;
 using UnitTests.Helpers;
@@ -9,19 +10,16 @@ namespace UnitTests.Infrastructure.Tests;
 public class CountryRepositoryTests
 {
     const int TestSeed = 123; // Fixed seed
-    private readonly List<Country> _testCountries;
+    private readonly List<Country> _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);
+    private async Task<AppDbContext> GetDbContext() => 
+        await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
 
-    public CountryRepositoryTests()
-    {
-        _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);
-    }
 
-        
     [Fact]
     public async Task GetListAsync_ShouldReturnAllCountries()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
         
         // Act
@@ -37,7 +35,7 @@ public class CountryRepositoryTests
     public async Task GetByIdAsync_ShouldReturnCorrectCountry()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
         var expectedCountry = _testCountries[1]; 
 
@@ -53,7 +51,7 @@ public class CountryRepositoryTests
     public async Task GetByIdAsync_ShouldReturnNull_WhenCountryNotFound()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
 
         // Act
@@ -67,7 +65,7 @@ public class CountryRepositoryTests
     public async Task GetByCodeAsync_ShouldReturnCorrectCountry()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
         var code = _testCountries[2].Code;
         var expectedCountry = _testCountries[2]; // Mexico
@@ -84,7 +82,7 @@ public class CountryRepositoryTests
     public async Task GetByCodeAsync_ShouldReturnNull_WhenCountryNotFound()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
 
         // Act
@@ -98,10 +96,10 @@ public class CountryRepositoryTests
     public async Task GetByNameAsync_ShouldReturnCorrectCountry()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
         var name = _testCountries[0].Name;
-        var expectedCountry = _testCountries[0]; // United States
+        var expectedCountry = _testCountries.First(); // United States
 
         // Act
         var result = await repo.GetByNameAsync(name);
@@ -115,7 +113,7 @@ public class CountryRepositoryTests
     public async Task GetByNameAsync_ShouldReturnNull_WhenCountryNotFound()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
 
         // Act
@@ -129,9 +127,9 @@ public class CountryRepositoryTests
     public async Task GetByNameAsync_ShouldBeCaseSensitive()
     {
         // Arrange
-        using var context = await InMemoryDbFactory.CreateInMemoryDbContext(_testCountries);
+        await using var context = await GetDbContext();
         var repo = new CountryRepository(context);
-        var name = _testCountries[1].Name.ToLower();
+        var name = _testCountries.First().Name.ToLower();
 
         // Act
         var result = await repo.GetByNameAsync(name);
