@@ -1,6 +1,6 @@
 namespace Applications.DTOs.Professor;
 
-public record struct ProfessorResponse()
+public record struct ProfessorResponse
 {
     public int Id { get; set; }
     public string EmployeeNumber { get; set; }
