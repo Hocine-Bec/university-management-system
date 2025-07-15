@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 
+# GEMINI.md
+GEMINI.md
+
 # Ignore ErrorLogs
 ErrorLogs.txt
 
