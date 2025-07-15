@@ -9,7 +9,7 @@ public static class PersonFactory
     public static List<Person> CreateTestPeople(int count, List<Country> countries, int? seed = null)
     {
         var faker = new Faker<Person>()
-            .RuleFor(p => p.Id, (f, p) => f.IndexGlobal + 1)
+            .RuleFor(p => p.Id, (f, p) => f.IndexFaker + 1)
             .RuleFor(p => p.FirstName, f => f.Name.FirstName())
             .RuleFor(p => p.LastName, f => f.Name.LastName())
             .RuleFor(p => p.DOB, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
