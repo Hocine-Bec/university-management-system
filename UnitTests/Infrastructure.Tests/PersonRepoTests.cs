@@ -13,14 +13,12 @@ namespace UnitTests.Infrastructure.Tests;
 
 public class PersonRepositoryTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
     private const int TestSeed = 123;
     private readonly List<Country> _testCountries;
     private readonly List<Person> _testPeople;
 
     public PersonRepositoryTests(ITestOutputHelper testOutputHelper)
     {
-        _testOutputHelper = testOutputHelper;
         _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);
         _testPeople = PersonFactory.CreateTestPeople(5, _testCountries, seed: TestSeed);
     }

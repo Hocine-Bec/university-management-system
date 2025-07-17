@@ -11,7 +11,7 @@ public class CountryRepositoryTests
 {
     private const int TestSeed = 123;
     private readonly List<Country> _testCountries;
-
+    
     public CountryRepositoryTests()
     {
         _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);

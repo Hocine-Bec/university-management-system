@@ -1,381 +1,379 @@
+using Bogus;
 using Domain.Entities;
+using Domain.Enums;
+using FluentAssertions;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
-using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using UnitTests.Common;
+using UnitTests.Helpers;
+using Xunit.Abstractions;
+using Person = Domain.Entities.Person;
 
-namespace Infrastructure.Tests.Repositories
+namespace UnitTests.Infrastructure.Tests;
+
+public class StudentRepositoryTests
 {
-    //public class StudentRepoTests
-    //{
-    //    private const int ValidStudentId = 1;
-    //    private const string ValidLastName = "Smith";
-
-    //    #region Get All Students
-    //    [Fact]
-    //    public async Task GetAllAsync_WhenStudentsExist_ReturnsListOfStudents()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetAllAsync();
-
-    //        // Assert
-    //        result.Should().HaveCount(1);
-    //        result.Should().ContainEquivalentOf(student);
-    //    }
-
-    //    [Fact]
-    //    public async Task GetAllAsync_WhenLargeDataSet_ReturnsAllStudents()
-    //    {
-    //        // Arrange
-    //        var students = Enumerable.Range(1, 500).Select(i => new Student
-    //        {
-    //            Id = i,
-    //            FName = $"FirstName{i}",
-    //            LName = $"LastName{i}",
-    //        }).ToList();
-
-    //        using var context = CreateInMemoryDbContext();
-    //        context.Students.AddRange(students);
-    //        await context.SaveChangesAsync();
-
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetAllAsync();
-
-    //        // Assert
-    //        result.Should().HaveCount(500);
-    //    }
-
-    //    [Fact]
-    //    public async Task GetAllAsync_WhenNoStudentsExist_ReturnsEmptyList()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetAllAsync();
-
-    //        // Assert
-    //        result.Should().BeEmpty();
-    //    }
-    //    #endregion
-
-    //    #region Add Student
-    //    [Fact]
-    //    public async Task AddAsync_WhenStudentIsValid_ReturnsStudentId()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-    //        var student = CreateTestStudent();
-
-    //        // Act
-    //        var result = await repo.AddAsync(student);
-
-    //        // Assert
-    //        result.Should().Be(ValidStudentId);
-    //        context.Students.Should().ContainEquivalentOf(student);
-    //    }
-
-    //    [Fact]
-    //    public async Task AddAsync_WhenStudentIsNull_ThrowsArgumentNullException()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act & Assert
-    //        await Assert.ThrowsAsync<ArgumentNullException>(() => repo.AddAsync(null!));
-    //    }
-    //    #endregion
-
-    //    #region Delete Student
-    //    [Fact]
-    //    public async Task DeleteAsync_ById_WhenStudentExists_ReturnsTrue()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DeleteAsync(ValidStudentId);
-
-    //        // Assert
-    //        result.Should().BeTrue();
-    //        context.Students.Should().NotContain(student);
-    //    }
-
-    //    [Fact]
-    //    public async Task DeleteAsync_ById_WhenStudentDoesNotExist_ReturnsFalse()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DeleteAsync(999);
-
-    //        // Assert
-    //        result.Should().BeFalse();
-    //    }
-
-    //    [Fact]
-    //    public async Task DeleteAsync_ByLastName_WhenStudentExistsUsingLastName_ReturnsTrue()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DeleteAsync(ValidLastName);
-
-    //        // Assert
-    //        result.Should().BeTrue();
-    //        context.Students.Should().NotContain(student);
-    //    }
-
-    //    [Fact]
-    //    public async Task DeleteAsync_ByLastName_WhenStudentDoesNotExist_ReturnsFalse()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DeleteAsync("NonExistingLastName");
-
-    //        // Assert
-    //        result.Should().BeFalse();
-    //    }
-
-    //    [Fact]
-    //    public async Task DeleteAsync_WhenLastNameIsNullOrEmpty_ReturnsFalse()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DeleteAsync("");
-
-    //        // Assert
-    //        result.Should().BeFalse();
-    //    }
-    //    #endregion
-
-    //    #region Get Student
-    //    [Fact]
-    //    public async Task GetByIdAsync_WhenStudentExists_ReturnsStudent()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetByIdAsync(ValidStudentId);
-
-    //        // Assert
-    //        result.Should().BeEquivalentTo(student);
-    //    }
-
-    //    [Fact]
-    //    public async Task GetByIdAsync_WhenStudentDoesNotExist_ReturnsNull()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetByIdAsync(999);
-
-    //        // Assert
-    //        result.Should().BeNull();
-    //    }
-
-    //    [Fact]
-    //    public async Task GetByNameAsync_WhenStudentExists_ReturnsStudent()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetByNameAsync(ValidLastName);
-
-    //        // Assert
-    //        result.Should().BeEquivalentTo(student);
-    //    }
-
-    //    [Fact]
-    //    public async Task GetByNameAsync_WhenStudentDoesNotExist_ReturnsNull()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetByNameAsync("NonExistingLastName");
-
-    //        // Assert
-    //        result.Should().BeNull();
-    //    }
-
-    //    [Fact]
-    //    public async Task GetByNameAsync_WhenLastNameIsNullOrEmpty_ReturnsNull()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.GetByNameAsync("");
-
-    //        // Assert
-    //        result.Should().BeNull();
-    //    }
-    //    #endregion
-
-    //    #region Update Student
-    //    [Fact]
-    //    public async Task UpdateAsync_WhenStudentIsValid_ReturnsTrue()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        student.FName = "UpdatedFirstName";
-
-    //        // Act
-    //        var result = await repo.UpdateAsync(student);
-
-    //        // Assert
-    //        result.Should().BeTrue();
-    //        var updatedStudent = await repo.GetByIdAsync(ValidStudentId);
-    //        updatedStudent!.FName.Should().Be("UpdatedFirstName");
-    //    }
-
-    //    [Fact]
-    //    public async Task UpdateAsync_WhenStudentIsNull_ThrowsNullReferenceException()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act & Assert
-    //        await Assert.ThrowsAsync<NullReferenceException>(() => repo.UpdateAsync(null!));
-    //    }
-    //    #endregion
-
-    //    #region Existence Checks
-    //    [Fact]
-    //    public async Task DoesExistAsync_ById_WhenStudentExists_ReturnsTrue()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DoesExistAsync(ValidStudentId);
-
-    //        // Assert
-    //        result.Should().BeTrue();
-    //    }
-
-    //    [Fact]
-    //    public async Task DoesExistAsync_ById_WhenStudentDoesNotExist_ReturnsFalse()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DoesExistAsync(999);
-
-    //        // Assert
-    //        result.Should().BeFalse();
-    //    }
-
-    //    [Fact]
-    //    public async Task DoesExistAsync_ByLastName_WhenStudentExists_ReturnsTrue()
-    //    {
-    //        // Arrange
-    //        var student = CreateTestStudent();
-    //        using var context = CreateInMemoryDbContext(student);
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DoesExistAsync(ValidLastName);
-
-    //        // Assert
-    //        result.Should().BeTrue();
-    //    }
-
-    //    [Fact]
-    //    public async Task DoesExistAsync_ByLastName_WhenStudentDoesNotExist_ReturnsFalse()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DoesExistAsync("NonExistingLastName");
-
-    //        // Assert
-    //        result.Should().BeFalse();
-    //    }
-
-    //    [Fact]
-    //    public async Task DoesExistAsync_ByLastName_WhenLastNameIsNullOrEmpty_ReturnsFalse()
-    //    {
-    //        // Arrange
-    //        using var context = CreateInMemoryDbContext();
-    //        var repo = new StudentRepository(context);
-
-    //        // Act
-    //        var result = await repo.DoesExistAsync("");
-            
-    //        // Assert
-    //        result.Should().BeFalse();
-    //    }
-    //    #endregion
-
-    //    #region Private Helpers
-    //    private AppDbContext CreateInMemoryDbContext(Student student = null!)
-    //    {
-    //        var options = new DbContextOptionsBuilder<AppDbContext>()
-    //            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-    //            .Options;
-
-    //        var dbContext = new AppDbContext(options);
-
-    //        if (student != null)
-    //        {
-    //            dbContext.Students.Add(student);
-    //            dbContext.SaveChanges();
-    //        }
-
-    //        return dbContext;
-    //    }
-
-    //    private Student CreateTestStudent() => new Student
-    //    {
-    //        Id = ValidStudentId,
-    //        FName = "John",
-    //        LName = ValidLastName
-    //    };
-    //    #endregion
-    //}
+    private const int TestSeed = 456;
+    private readonly List<Country> _testCountries;
+    private readonly List<Person> _testPeople;
+    private readonly List<Student> _testStudents;
+
+    public StudentRepositoryTests(ITestOutputHelper testOutputHelper)
+    {
+        _testCountries = CountryFactory.CreateTestCountries(10, seed: TestSeed);
+        _testPeople = PersonFactory.CreateTestPeople(8, _testCountries, seed: TestSeed);
+        _testStudents = StudentFactory.CreateTestStudents(5, _testPeople, seed: TestSeed);
+    }
+
+    private async Task<AppDbContext> GetDbContext() =>
+        await InMemoryDbFactory.CreateAsync(_testCountries, _testPeople, _testStudents);
+    
+    private static async Task<AppDbContext> GetEmptyDbContext() => await InMemoryDbFactory.CreateAsync();
+
+    [Fact]
+    public async Task GetListAsync_WhenStudentsExist_ShouldReturnAllStudentsWithPeople()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.GetListAsync();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(5);
+        result.Should().BeEquivalentTo(_testStudents, 
+            options => options.Excluding(s => s.Person.Country));
+    }
+    
+    [Fact]
+    public async Task GetListAsync_WhenNoStudentsExist_ShouldReturnEmptyList()
+    {
+        // Arrange
+        await using var context = await GetEmptyDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.GetListAsync();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenStudentExists_ShouldReturnCorrectStudentWithPerson()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var expectedStudent = _testStudents.First();
+
+        // Act
+        var result = await repo.GetByIdAsync(expectedStudent.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(expectedStudent, 
+            options => options.Excluding(s => s.Person.Country));
+        result.Person.Should().NotBeNull();
+        result.Person.CountryId.Should().Be(expectedStudent.Person.CountryId);
+    }
+    
+    [Fact]
+    public async Task GetByIdAsync_WhenStudentDoesNotExist_ShouldReturnNull()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        const int nonExistentId = -1;
+
+        // Act
+        var result = await repo.GetByIdAsync(nonExistentId);
+
+        // Assert
+        result.Should().BeNull();
+    }
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task GetByIdAsync_WhenIdIsInvalid_ShouldReturnNull(int invalid)
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.GetByIdAsync(invalid);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetByStudentNumberAsync_WhenStudentExists_ShouldReturnCorrectStudent()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var expectedStudent = _testStudents.First();
+
+        // Act
+        var result = await repo.GetByStudentNumberAsync(expectedStudent.StudentNumber);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(expectedStudent, options => 
+            options.Excluding(s => s.Person.Country));
+        result.Person.Should().NotBeNull();
+        result.Person.CountryId.Should().Be(expectedStudent.Person.CountryId);
+    }
+    
+    [Fact]
+    public async Task GetByStudentNumberAsync_WhenStudentDoesNotExist_ShouldReturnNull()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        const string nonExistentStudentNumber = "non-existent";
+
+        // Act
+        var result = await repo.GetByStudentNumberAsync(nonExistentStudentNumber);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task GetByStudentNumberAsync_WhenStudentNumberIsInvalid_ShouldReturnNull(string studentNumber)
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.GetByStudentNumberAsync(studentNumber);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task AddAsync_WhenStudentIsValid_ShouldAddAndReturnId()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var person = _testPeople.Last();
+    
+        
+        var newStudent = new Faker<Student>()
+            .RuleFor(s => s.StudentNumber, f => f.Random.AlphaNumeric(10))
+            .RuleFor(s => s.StudentStatus, f => f.PickRandom<StudentStatus>())
+            .RuleFor(s => s.PersonId, person.Id)
+            .Generate();
+        
+        // Act
+        var newId = await repo.AddAsync(newStudent);
+        var result = await context.Students.FindAsync(newId);
+        
+        // Assert
+        newId.Should().BeGreaterThan(0);
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(newStudent);
+    }
+    
+    [Fact]
+    public async Task AddAsync_WhenStudentIsNull_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var act = async () => await repo.AddAsync(null!);
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenStudentExists_ShouldUpdateAndReturnTrue()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var studentToUpdate = await context.Students.FirstAsync();
+        studentToUpdate.Notes = "Updated Note";
+
+        // Act
+        var result = await repo.UpdateAsync(studentToUpdate);
+        var updatedStudent = await context.Students.FindAsync(studentToUpdate.Id);
+
+        // Assert
+        result.Should().BeTrue();
+        updatedStudent.Should().NotBeNull();
+        updatedStudent.Notes.Should().Be("Updated Note");
+    }
+    
+    [Fact]
+    public async Task UpdateAsync_WhenStudentIsNull_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var act = async () => await repo.UpdateAsync(null!);
+
+        // Assert
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenStudentExists_ShouldDeleteAndReturnTrue()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var studentToDelete = _testStudents.First();
+
+        // Act
+        var result = await repo.DeleteAsync(studentToDelete.StudentNumber);
+        var deletedStudent = await repo.GetByStudentNumberAsync(studentToDelete.StudentNumber);
+
+        // Assert
+        result.Should().BeTrue();
+        deletedStudent.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task DeleteAsync_WhenStudentDoesNotExist_ShouldReturnFalse()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        const string nonExistentStudentNumber = "non-existent";
+
+        // Act
+        var result = await repo.DeleteAsync(nonExistentStudentNumber);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task DeleteAsync_WhenStudentNumberIsInvalid_ShouldReturnFalse(string studentNumber)
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.DeleteAsync(studentNumber);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+    
+    [Fact]
+    public async Task DoesExistAsync_WhenStudentExists_ShouldReturnTrue()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var personId = _testStudents.First().PersonId;
+
+        // Act
+        var result = await repo.DoesExistAsync(personId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DoesExistAsync_WhenStudentDoesNotExist_ShouldReturnFalse()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        const int nonExistentPersonId = -1;
+
+        // Act
+        var result = await repo.DoesExistAsync(nonExistentPersonId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task DoesExistAsync_WhenPersonIdIsInvalid_ShouldReturnFalse(int invalidPersonId)
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.DoesExistAsync(invalidPersonId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+    
+    [Fact]
+    public async Task DoesExistsAsync_WhenStudentExists_ShouldReturnTrue()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        var studentId = _testStudents.First().Id;
+
+        // Act
+        var result = await repo.DoesExistsAsync(studentId);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DoesExistsAsync_WhenStudentDoesNotExist_ShouldReturnFalse()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+        const int nonExistentId = -1;
+
+        // Act
+        var result = await repo.DoesExistsAsync(nonExistentId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task DoesExistsAsync_WhenStudentIdIsInvalid_ShouldReturnFalse(int invalidId)
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new StudentRepository(context);
+
+        // Act
+        var result = await repo.DoesExistsAsync(invalidId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
 }
