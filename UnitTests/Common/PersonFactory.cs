@@ -8,8 +8,12 @@ public static class PersonFactory
 {
     public static List<Person> CreateTestPeople(int count, List<Country> countries, int? seed = null)
     {
-        var faker = new Faker<Person>()
-            .RuleFor(p => p.Id, (f, p) => f.IndexFaker + 1)
+        var faker = new Faker<Person>();
+        
+        if (seed.HasValue)
+            faker.UseSeed(seed.Value);
+            
+        faker.RuleFor(p => p.Id, f => f.IndexFaker + 1)
             .RuleFor(p => p.FirstName, f => f.Name.FirstName())
             .RuleFor(p => p.LastName, f => f.Name.LastName())
             .RuleFor(p => p.DOB, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
@@ -21,11 +25,7 @@ public static class PersonFactory
             {
                 var country = f.PickRandom(countries);
                 p.CountryId = country.Id;
-                p.Country = country;
             });
-
-        if (seed.HasValue)
-            faker.UseSeed(seed.Value); 
 
         return faker.Generate(count);
     }
