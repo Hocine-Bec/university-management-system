@@ -172,6 +172,7 @@ public class ProfessorRepositoryTests
             .RuleFor(p => p.Salary, f => f.Finance.Amount(50000, 150000))
             .RuleFor(p => p.IsActive, f => true)
             .RuleFor(p => p.PersonId, person.Id)
+            .UseSeed(456)
             .Generate();
 
         // Act

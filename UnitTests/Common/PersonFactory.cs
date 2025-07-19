@@ -8,6 +8,9 @@ public static class PersonFactory
 {
     public static List<Person> CreateTestPeople(int count, List<Country> countries, int? seed = null)
     {
+        if (count > countries.Count)
+            throw new ArgumentException("Cannot create more people than available countries");
+        
         var faker = new Faker<Person>();
         
         if (seed.HasValue)

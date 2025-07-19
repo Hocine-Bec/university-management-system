@@ -177,6 +177,7 @@ public class StudentRepositoryTests
             .RuleFor(s => s.StudentNumber, f => f.Random.AlphaNumeric(10))
             .RuleFor(s => s.StudentStatus, f => f.PickRandom<StudentStatus>())
             .RuleFor(s => s.PersonId, person.Id)
+            .UseSeed(456)
             .Generate();
         
         // Act
