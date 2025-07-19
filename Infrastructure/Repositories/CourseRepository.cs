@@ -16,6 +16,16 @@ public class CourseRepository(AppDbContext context) : GenericRepository<Course>(
             .FirstOrDefaultAsync(c => c.Code == code);
     }
 
+    public async Task<bool> DeleteAsync(string code)
+    {
+        var entity = await _context.Courses.FirstOrDefaultAsync(x => x.Code == code);
+        if (entity == null)
+            return false;
+            
+        _context.Remove(entity);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
     public Task<bool> DoesCodeExistAsync(string code)
     {
         return _context.Courses.AnyAsync(c => c.Code == code);
