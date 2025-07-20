@@ -9,15 +9,10 @@ using UnitTests.Helpers;
 
 namespace UnitTests.Infrastructure.Tests;
 
-public class ProgramRepositoryTests
+public class ProgramRepoTests
 {
     private const int TestSeed = 125;
-    private readonly List<Program> _testPrograms;
-
-    public ProgramRepositoryTests()
-    {
-        _testPrograms = ProgramFactory.CreateTestPrograms(seed: TestSeed);
-    }
+    private readonly List<Program> _testPrograms = ProgramFactory.CreateTestPrograms(seed: TestSeed);
 
     private async Task<AppDbContext> GetDbContext() =>
         await InMemoryDbFactory.CreateAsync(_testPrograms);

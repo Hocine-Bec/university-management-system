@@ -8,13 +8,13 @@ using UnitTests.Helpers;
 
 namespace UnitTests.Infrastructure.Tests;
 
-public class PrerequisiteRepositoryTests
+public class PrerequisiteRepoTests
 {
     private const int TestSeed = 404;
     private readonly List<Course> _testCourses;
     private readonly List<Prerequisite> _testPrerequisites;
 
-    public PrerequisiteRepositoryTests()
+    public PrerequisiteRepoTests()
     {
         _testCourses = CourseFactory.CreateTestCourses(5, seed: TestSeed);
         _testPrerequisites = PrerequisiteFactory.CreateTestPrerequisites(3, _testCourses, seed: TestSeed);

@@ -12,14 +12,14 @@ using Person = Domain.Entities.Person;
 
 namespace UnitTests.Infrastructure.Tests;
 
-public class StudentRepositoryTests
+public class StudentRepoTests
 {
     private const int TestSeed = 456;
     private readonly List<Country> _testCountries;
     private readonly List<Person> _testPeople;
     private readonly List<Student> _testStudents;
 
-    public StudentRepositoryTests(ITestOutputHelper testOutputHelper)
+    public StudentRepoTests(ITestOutputHelper testOutputHelper)
     {
         _testCountries = CountryFactory.CreateTestCountries(10, seed: TestSeed);
         _testPeople = PersonFactory.CreateTestPeople(8, _testCountries, seed: TestSeed);

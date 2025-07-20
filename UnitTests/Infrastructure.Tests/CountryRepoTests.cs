@@ -7,15 +7,10 @@ using UnitTests.Helpers;
 
 namespace UnitTests.Infrastructure.Tests;
 
-public class CountryRepositoryTests
+public class CountryRepoTests
 {
     private const int TestSeed = 123;
-    private readonly List<Country> _testCountries;
-    
-    public CountryRepositoryTests()
-    {
-        _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);
-    }
+    private readonly List<Country> _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);
 
     private async Task<AppDbContext> GetDbContext() =>
         await InMemoryDbFactory.CreateAsync(_testCountries);

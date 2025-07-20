@@ -9,7 +9,7 @@ using UnitTests.Helpers;
 
 namespace UnitTests.Infrastructure.Tests;
 
-public class CourseRepositoryTests
+public class CourseRepoTests
 {
     private const int TestSeed = 126;
     private readonly List<Course> _testCourses = CourseFactory.CreateTestCourses(seed: TestSeed);

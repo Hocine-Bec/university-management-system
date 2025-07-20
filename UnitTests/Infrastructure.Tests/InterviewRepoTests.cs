@@ -9,7 +9,7 @@ using Person = Domain.Entities.Person;
 
 namespace UnitTests.Infrastructure.Tests;
 
-public class InterviewRepositoryTests
+public class InterviewRepoTests
 {
     private const int TestSeed = 12345;
 
@@ -18,7 +18,7 @@ public class InterviewRepositoryTests
     private readonly List<Professor> _testProfessors;
     private readonly List<Interview> _testInterviews;
 
-    public InterviewRepositoryTests()
+    public InterviewRepoTests()
     {
         _testCountries = CountryFactory.CreateTestCountries(seed: TestSeed);
         _testPeople = PersonFactory.CreateTestPeople(10, _testCountries, seed: TestSeed);
