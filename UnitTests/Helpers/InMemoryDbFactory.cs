@@ -7,10 +7,10 @@ namespace UnitTests.Helpers;
 
 public static class InMemoryDbFactory
 {
-    public static async Task<AppDbContext> CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, T7, T8>(
+    public static async Task<AppDbContext> CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
         List<T1>? entities1 = null, List<T2>? entities2 = null, List<T3>? entities3 = null, 
         List<T4>? entities4 = null, List<T5>? entities5 = null, List<T6>? entities6 = null,
-        List<T7>? entities7 = null, List<T8>? entities8 = null)
+        List<T7>? entities7 = null, List<T8>? entities8 = null, List<T9>? entities9 = null)
         where T1 : class
         where T2 : class
         where T3 : class
@@ -19,6 +19,7 @@ public static class InMemoryDbFactory
         where T6 : class
         where T7 : class
         where T8 : class
+        where T9 : class
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -49,6 +50,9 @@ public static class InMemoryDbFactory
         
         if (entities8?.Any() == true)
             await dbContext.Set<T8>().AddRangeAsync(entities8);
+        
+        if (entities9?.Any() == true)
+            await dbContext.Set<T9>().AddRangeAsync(entities9);
 
         await dbContext.SaveChangesAsync();
         return dbContext;
@@ -56,19 +60,19 @@ public static class InMemoryDbFactory
 
     public static Task<AppDbContext> CreateAsync()
     {
-        return CreateInMemoryDbContextAsync<object, object, object, object, object, object, object, object>();
+        return CreateInMemoryDbContextAsync<object, object, object, object, object, object, object, object, object>();
     }
 
     public static Task<AppDbContext> CreateAsync<T1>(List<T1> entities1) where T1 : class
     {
-        return CreateInMemoryDbContextAsync<T1, object, object, object, object, object, object, object>(entities1);
+        return CreateInMemoryDbContextAsync<T1, object, object, object, object, object, object, object, object>(entities1);
     }
 
     public static Task<AppDbContext> CreateAsync<T1, T2>(List<T1> entities1, List<T2> entities2)
         where T1 : class
         where T2 : class
     {
-        return CreateInMemoryDbContextAsync<T1, T2, object, object, object, object, object, object>(
+        return CreateInMemoryDbContextAsync<T1, T2, object, object, object, object, object, object, object>(
             entities1, entities2);
     }
 
@@ -78,7 +82,7 @@ public static class InMemoryDbFactory
         where T2 : class
         where T3 : class
     {
-        return CreateInMemoryDbContextAsync<T1, T2, T3, object, object, object, object, object>(entities1, 
+        return CreateInMemoryDbContextAsync<T1, T2, T3, object, object, object, object, object, object>(entities1, 
             entities2, entities3);
     }
 
@@ -90,7 +94,7 @@ public static class InMemoryDbFactory
         where T3 : class
         where T4 : class
     {
-        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, object, object, object, object>(entities1, 
+        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, object, object, object, object, object>(entities1, 
             entities2, entities3, entities4);
     }
 
@@ -102,7 +106,7 @@ public static class InMemoryDbFactory
         where T4 : class
         where T5 : class
     {
-        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, object, object, object>(entities1, 
+        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, object, object, object, object>(entities1, 
             entities2, entities3, entities4, entities5);
     }
 
@@ -115,7 +119,7 @@ public static class InMemoryDbFactory
         where T5 : class
         where T6 : class
     {
-        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, object, object>(entities1, entities2, entities3, entities4,
+        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, object, object, object>(entities1, entities2, entities3, entities4,
             entities5, entities6);
     }
     
@@ -130,7 +134,7 @@ public static class InMemoryDbFactory
         where T6 : class
         where T7 : class
     {
-        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, T7, object>(entities1, entities2, entities3, entities4,
+        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, T7, object, object>(entities1, entities2, entities3, entities4,
             entities5, entities6, entities7);
     }
     
@@ -146,7 +150,25 @@ public static class InMemoryDbFactory
         where T7 : class
         where T8 : class
     {
-        return CreateInMemoryDbContextAsync(entities1, entities2, entities3, 
+        return CreateInMemoryDbContextAsync<T1, T2, T3, T4, T5, T6, T7, T8, object>(
+            entities1, entities2, entities3, 
             entities4, entities5, entities6, entities7, entities8);
+    }
+    
+    public static Task<AppDbContext> CreateAsync<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+        List<T1> entities1, List<T2> entities2, List<T3> entities3, List<T4> entities4,
+        List<T5> entities5, List<T6> entities6, List<T7> entities7, List<T8> entities8, List<T9> entities9)
+        where T1 : class
+        where T2 : class
+        where T3 : class
+        where T4 : class
+        where T5 : class
+        where T6 : class
+        where T7 : class
+        where T8 : class
+        where T9 : class
+    {
+        return CreateInMemoryDbContextAsync(entities1, entities2, entities3, 
+            entities4, entities5, entities6, entities7, entities8, entities9);
     }
 }
