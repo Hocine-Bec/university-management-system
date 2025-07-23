@@ -222,4 +222,125 @@ public class ServiceApplicationRepositoryTests
         result.CompletedDate.Should().NotBeNull();
         result.PaidFees.Should().Be(appToUpdate.ServiceOffer.Fees);
     }
+    
+    [Fact]
+    public async Task UpdateAsync_WhenApplicationDoesNotExist_ShouldThrowException()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new ServiceApplicationRepository(context);
+        var nonExistentApp = new ServiceApplication
+        {
+            Id = -1,
+            Person = null!,
+            ServiceOffer = null!
+        };
+    
+        // Act & Assert
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () 
+            => await repo.UpdateAsync(nonExistentApp));
+    }
+    
+    [Fact]
+    public async Task GetListAsync_WhenNoApplicationsExist_ShouldReturnEmptyList()
+    {
+        // Arrange
+        await using var context = await InMemoryDbFactory.CreateAsync();
+        var repo = new ServiceApplicationRepository(context);
+    
+        // Act
+        var result = await repo.GetListAsync();
+    
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+    }
+    
+    [Fact]
+    public async Task GetByIdAsync_WhenApplicationDoesNotExist_ShouldReturnNull()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new ServiceApplicationRepository(context);
+        const int nonExistentId = -1;
+    
+        // Act
+        var result = await repo.GetByIdAsync(nonExistentId);
+    
+        // Assert
+        result.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task DeleteAsync_WhenApplicationExists_ShouldRemoveAndReturnTrue()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new ServiceApplicationRepository(context);
+        var appToDelete = _testApplications.First();
+    
+        // Act
+        var result = await repo.DeleteAsync(appToDelete.Id);
+        var deletedApp = await repo.GetByIdAsync(appToDelete.Id);
+    
+        // Assert
+        result.Should().BeTrue();
+        deletedApp.Should().BeNull();
+    }
+    
+    [Fact]
+    public async Task DeleteAsync_WhenApplicationDoesNotExist_ShouldReturnFalse()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new ServiceApplicationRepository(context);
+        const int nonExistentId = -1;
+    
+        // Act
+        var result = await repo.DeleteAsync(nonExistentId);
+    
+        // Assert
+        result.Should().BeFalse();
+    }
+    
+    [Fact]
+    public async Task DoesPersonHaveActiveApplicationsAsync_WhenMultipleActiveExist_ShouldReturnTrue()
+    {
+        // Arrange
+        await using var context = await GetDbContext();
+        var repo = new ServiceApplicationRepository(context);
+        
+        // Create multiple active applications for same person/service
+        var person = _testPeople.First();
+        var service = _testServiceOffers.First();
+        
+        var activeApp1 = new ServiceApplication
+        {
+            ApplicationDate = DateTime.Now,
+            Status = ApplicationStatus.New,
+            PersonId = person.Id,
+            ServiceOfferId = service.Id,
+            Person = null!,
+            ServiceOffer = null!
+        };
+        
+        var activeApp2 = new ServiceApplication
+        {
+            ApplicationDate = DateTime.Now,
+            Status = ApplicationStatus.InProgress,
+            PersonId = person.Id,
+            ServiceOfferId = service.Id,
+            Person = null!,
+            ServiceOffer = null!
+        };
+        
+        await context.ServiceApplications.AddRangeAsync(activeApp1, activeApp2);
+        await context.SaveChangesAsync();
+    
+        // Act
+        var result = await repo.DoesPersonHaveActiveApplicationsAsync(person.Id, service.Id);
+    
+        // Assert
+        result.Should().BeTrue();
+    }
 }
