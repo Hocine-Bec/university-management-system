@@ -21,7 +21,7 @@ public class UserRepository(AppDbContext context) : GenericRepository<User>(cont
     }
     public async Task<bool> DoesExistAsync(int personId)
     {
-        return await _context.Students.AnyAsync(x => x.PersonId == personId);
+        return await _context.Users.AnyAsync(x => x.PersonId == personId);
     }
     public async Task<IReadOnlyCollection<User>> GetByRoleAsync(int roleId)
     {

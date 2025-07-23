@@ -41,8 +41,10 @@ public class GradeRepository(AppDbContext context) : GenericRepository<Grade>(co
             .ToListAsync();
     }
 
-    public Task<bool> DoesExistAsync(int studentId, int courseId, int semesterId)
+    public async Task<bool> DoesExistAsync(int studentId, int courseId, int semesterId)
     {
-        throw new NotImplementedException();
+        return await _context.Grades.AnyAsync(x => x.StudentId == studentId
+                                                   && x.CourseId == courseId
+                                                   && x.SemesterId == semesterId);
     }
 }
