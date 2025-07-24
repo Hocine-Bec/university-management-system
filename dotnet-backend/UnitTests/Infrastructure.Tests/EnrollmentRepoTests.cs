@@ -139,8 +139,10 @@ public class EnrollmentRepoTests
         
         var availableStudent = _testStudents.First(s => _testEnrollments.All(e => e.StudentId != s.Id));
         var program = _testPrograms.First();
-        var serviceApp = _testApplications.First();
-
+        var serviceApp = ServiceApplicationFactory.CreateTestServiceApplications(1, 
+            _testPeople, _testServiceOffers, _testUsers, seed: TestSeed).First();
+        serviceApp.Id = _testApplications.Last().Id + 1;
+        
         var newEnrollment = new Enrollment
         {
             EnrollmentDate = DateTime.UtcNow,
