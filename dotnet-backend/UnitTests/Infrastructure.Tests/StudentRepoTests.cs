@@ -170,13 +170,21 @@ public class StudentRepoTests
         // Arrange
         await using var context = await GetDbContext();
         var repo = new StudentRepository(context);
-        var person = _testPeople.Last();
-    
+        var newPerson = new Faker<Person>()
+            .RuleFor(p => p.FirstName, f => f.Name.FirstName())
+            .RuleFor(p => p.LastName, f => f.Name.LastName())
+            .RuleFor(p => p.DOB, f => f.Date.Past(30, DateTime.Now.AddYears(-18)))
+            .FinishWith((f, p) =>
+            {
+                var country = f.PickRandom(_testCountries);
+                p.CountryId = country.Id;
+            })
+            .Generate();
         
         var newStudent = new Faker<Student>()
             .RuleFor(s => s.StudentNumber, f => f.Random.AlphaNumeric(10))
             .RuleFor(s => s.StudentStatus, f => f.PickRandom<StudentStatus>())
-            .RuleFor(s => s.PersonId, person.Id)
+            .RuleFor(s => s.PersonId, newPerson.Id)
             .UseSeed(456)
             .Generate();
         
