@@ -89,21 +89,20 @@ public class ServiceApplicationRepositoryTests
         await using var context = await GetDbContext();
         var repo = new ServiceApplicationRepository(context);
         var testPerson = _testPeople.First();
-        var expectedApps = _testApplications
-            .Where(a => a.PersonId == testPerson.Id)
-            .ToList();
+        var expectedApp = _testApplications
+            .FirstOrDefault(a => a.PersonId == testPerson.Id);
 
         // Act
         var result = await repo.GetByPersonIdAsync(testPerson.Id);
 
         // Assert
-        result.Should().NotBeNull();
-        if (expectedApps.Count != 0)
+        if (expectedApp != null)
         {
-            result.Should().BeEquivalentTo(expectedApps.First(), options => 
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(expectedApp, options => 
                 options.Excluding(a => a.Person)
-                      .Excluding(a => a.ServiceOffer)
-                      .Excluding(a => a.ProcessedByUser));
+                    .Excluding(a => a.ServiceOffer)
+                    .Excluding(a => a.ProcessedByUser));
         }
         else
         {
