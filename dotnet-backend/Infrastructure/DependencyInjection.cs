@@ -33,6 +33,7 @@ namespace Infrastructure
             var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
             
+            
             services.AddAuthentication(options =>
                 {
                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,7 +49,7 @@ namespace Infrastructure
                         ValidateIssuerSigningKey = true,
                         ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
                         ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET_KEY")!)),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!)),
                         ClockSkew = TimeSpan.Zero
                     };
                 });
