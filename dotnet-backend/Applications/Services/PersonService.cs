@@ -14,19 +14,22 @@ namespace Applications.Services
         private readonly IPersonRepository _repository;
         private readonly IMapper _mapper;
         private readonly IMyLogger _logger;
+        private readonly IValidationService _validator;
 
-        public PersonService(IPersonRepository repository, IMapper mapper, IMyLogger logger)
+        public PersonService(IPersonRepository repository, IMapper mapper, IMyLogger logger, IValidationService validationService)
         {
             _repository = repository;
             _mapper = mapper;
             _logger = logger;
+            _validator = validationService;
         }
         
         public async Task<Result<PersonResponse>> AddAsync(PersonRequest request)
         {
-            if (request == default)
-                return Result<PersonResponse>.Failure("Student information is required", ErrorType.BadRequest);
-            
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsSuccess)
+                return Result<PersonResponse>.Failure(validationResult.Error, validationResult.ErrorType);
+
             try
             {
                 bool isExists = await _repository.DoesExistAsync(request.LastName ?? string.Empty);
@@ -126,8 +129,9 @@ namespace Applications.Services
             if (id <= 0)
                 return Result.Failure("Invalid person ID provided", ErrorType.BadRequest);
             
-            if (request == default)
-                return Result.Failure("Person information is required for update", ErrorType.BadRequest);
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsSuccess)
+                return Result<PersonResponse>.Failure(validationResult.Error, validationResult.ErrorType);
             
             try
             {
