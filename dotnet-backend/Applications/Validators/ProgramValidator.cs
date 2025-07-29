@@ -1,7 +1,7 @@
 using Applications.DTOs.Program;
 using FluentValidation;
 
-namespace Applications.Validations;
+namespace Applications.Validators;
 
 public class ProgramValidator : AbstractValidator<ProgramRequest>
 {

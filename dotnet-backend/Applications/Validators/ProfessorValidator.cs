@@ -1,8 +1,7 @@
-
 using Applications.DTOs.Professor;
 using FluentValidation;
 
-namespace Applications.Validations;
+namespace Applications.Validators;
 
 public class ProfessorValidator : AbstractValidator<ProfessorRequest>
 {

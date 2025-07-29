@@ -1,7 +1,7 @@
 using Applications.DTOs.People;
 using FluentValidation;
 
-namespace Applications.Validations;
+namespace Applications.Validators;
 
 public class PersonRequestValidator : AbstractValidator<PersonRequest>
 {

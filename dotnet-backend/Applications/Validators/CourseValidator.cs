@@ -1,7 +1,7 @@
 using Applications.DTOs.Course;
 using FluentValidation;
 
-namespace Applications.Validations;
+namespace Applications.Validators;
 
 public class CourseValidator : AbstractValidator<CourseRequest>
 {
