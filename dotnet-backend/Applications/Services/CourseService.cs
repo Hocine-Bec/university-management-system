@@ -14,12 +14,14 @@ public class CourseService : ICourseService
     private readonly ICourseRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public CourseService(ICourseRepository repository, IMapper mapper, IMyLogger logger)
+    public CourseService(ICourseRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<CourseResponse>>> GetListAsync()
@@ -82,8 +84,9 @@ public class CourseService : ICourseService
 
     public async Task<Result<CourseResponse>> AddAsync(CourseRequest request)
     {
-        if (request == default)
-            return Result<CourseResponse>.Failure("Course data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<CourseResponse>.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -109,8 +112,9 @@ public class CourseService : ICourseService
 
     public async Task<Result> UpdateAsync(int id, CourseRequest request)
     {
-        if (request == default)
-            return Result.Failure("Course data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {

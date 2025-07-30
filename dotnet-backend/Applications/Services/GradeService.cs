@@ -14,12 +14,14 @@ public class GradeService : IGradeService
     private readonly IGradeRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public GradeService(IGradeRepository repository, IMapper mapper, IMyLogger logger)
+    public GradeService(IGradeRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<GradeResponse>>> GetListAsync()
@@ -110,8 +112,9 @@ public class GradeService : IGradeService
 
     public async Task<Result<GradeResponse>> AddAsync(GradeRequest request)
     {
-        if (request == default)
-            return Result<GradeResponse>.Failure("Grade data required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<GradeResponse>.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -138,8 +141,9 @@ public class GradeService : IGradeService
 
     public async Task<Result> UpdateAsync(int id, GradeRequest request)
     {
-        if (request == default)
-            return Result.Failure("Grade data required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {

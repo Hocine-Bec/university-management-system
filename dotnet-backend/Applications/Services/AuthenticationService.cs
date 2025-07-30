@@ -2,6 +2,7 @@ using Applications.DTOs.Auth;
 using Applications.Interfaces.Auth;
 using Applications.Interfaces.Logging;
 using Applications.Interfaces.Repositories;
+using Applications.Interfaces.Services;
 using Applications.Shared;
 using Domain.Enums;
 
@@ -13,20 +14,23 @@ public class AuthenticationService : IAuthenticationService
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IPasswordHasher _hasher;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
     public AuthenticationService(IUserRepository userRepository, IJwtTokenService jwtTokenService,
-        IPasswordHasher hasher, IMyLogger logger)
+        IPasswordHasher hasher, IMyLogger logger, IValidationService validator)
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
         _hasher = hasher;
         _logger = logger;
+        _validator = validator;
     }
     
     public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-            return Result<LoginResponse>.Failure("Username and password are required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<LoginResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {

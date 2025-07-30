@@ -6,117 +6,116 @@ using Applications.Shared;
 using AutoMapper;
 using Domain.Enums;
 
-namespace Applications.Services
+namespace Applications.Services;
+
+public class CountryService : ICountryService
 {
-    public class CountryService : ICountryService
+    private readonly ICountryRepository _repository;
+    private readonly IMapper _mapper;
+    private readonly IMyLogger _logger;
+
+    public CountryService(ICountryRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
-        private readonly ICountryRepository _repository;
-        private readonly IMapper _mapper;
-        private readonly IMyLogger _logger;
+        _repository = repository;
+        _mapper = mapper;
+        _logger = logger;
+    }
 
-        public CountryService(ICountryRepository repository, IMapper mapper, IMyLogger logger)
+
+    public async Task<Result<IReadOnlyCollection<CountryResponse>>> GetListAsync()
+    {
+        try
         {
-            _repository = repository;
-            _mapper = mapper;
-            _logger = logger;
+            var countries = await _repository.GetListAsync();
+            if (!countries.Any())
+            {
+                return Result<IReadOnlyCollection<CountryResponse>>.Failure(
+                    "No Countries found in the system", ErrorType.NotFound);
+            }
+
+            var countriesDto = _mapper.Map<IReadOnlyCollection<CountryResponse>>(countries);
+            return Result<IReadOnlyCollection<CountryResponse>>.Success(countriesDto);
         }
-
-
-        public async Task<Result<IReadOnlyCollection<CountryResponse>>> GetListAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                var countries = await _repository.GetListAsync();
-                if (!countries.Any())
-                {
-                    return Result<IReadOnlyCollection<CountryResponse>>.Failure(
-                        "No Countries found in the system", ErrorType.NotFound);
-                }
+            _logger.LogError("Database error retrieving all countries", ex);
 
-                var countriesDto = _mapper.Map<IReadOnlyCollection<CountryResponse>>(countries);
-                return Result<IReadOnlyCollection<CountryResponse>>.Success(countriesDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Database error retrieving all countries", ex);
-
-                return Result<IReadOnlyCollection<CountryResponse>>
-                    .Failure("Failed to retrieve countries due to a system error", ErrorType.InternalServerError);
-            }
+            return Result<IReadOnlyCollection<CountryResponse>>
+                .Failure("Failed to retrieve countries due to a system error", ErrorType.InternalServerError);
         }
+    }
 
-        public async Task<Result<CountryResponse>> GetByIdAsync(int id)
+    public async Task<Result<CountryResponse>> GetByIdAsync(int id)
+    {
+        if (id <= 0)
+            return Result<CountryResponse>.Failure("Invalid country ID provided", ErrorType.BadRequest);
+
+        try
         {
-            if (id <= 0)
-                return Result<CountryResponse>.Failure("Invalid country ID provided", ErrorType.BadRequest);
+            var country = await _repository.GetByIdAsync(id);
+            if (country == null)
+                return Result<CountryResponse>.Failure("Student not found with the specified ID", ErrorType.NotFound);
 
-            try
-            {
-                var country = await _repository.GetByIdAsync(id);
-                if (country == null)
-                    return Result<CountryResponse>.Failure("Student not found with the specified ID", ErrorType.NotFound);
+            var countryDto = _mapper.Map<CountryResponse>(country);
+            return Result<CountryResponse>.Success(countryDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Database error retrieving country", ex, new { id });
+            return Result<CountryResponse>.Failure(
+                "Failed to retrieve country due to a system error",
+                ErrorType.InternalServerError);
+        }
+    }
 
-                var countryDto = _mapper.Map<CountryResponse>(country);
-                return Result<CountryResponse>.Success(countryDto);
-            }
-            catch (Exception ex)
+    public async Task<Result<CountryResponse>> GetByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return Result<CountryResponse>.Failure("Country name is required", ErrorType.BadRequest);
+
+        try
+        {
+            var country = await _repository.GetByNameAsync(name);
+
+            if (country == null)
             {
-                _logger.LogError("Database error retrieving country", ex, new { id });
                 return Result<CountryResponse>.Failure(
-                    "Failed to retrieve country due to a system error",
-                    ErrorType.InternalServerError);
+                    "Country not found with the specified name", ErrorType.NotFound);
             }
+
+            var countryDto = _mapper.Map<CountryResponse>(country);
+            return Result<CountryResponse>.Success(countryDto);
         }
-
-        public async Task<Result<CountryResponse>> GetByNameAsync(string name)
+        catch (Exception ex)
         {
-            if (string.IsNullOrEmpty(name))
-                return Result<CountryResponse>.Failure("Country name is required", ErrorType.BadRequest);
-
-            try
-            {
-                var country = await _repository.GetByNameAsync(name);
-
-                if (country == null)
-                {
-                    return Result<CountryResponse>.Failure(
-                        "Country not found with the specified name", ErrorType.NotFound);
-                }
-
-                var countryDto = _mapper.Map<CountryResponse>(country);
-                return Result<CountryResponse>.Success(countryDto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Database error retrieving country", ex, new { name });
-                return Result<CountryResponse>.Failure("Failed to retrieve country due to a system error", ErrorType.InternalServerError);
-            }
+            _logger.LogError("Database error retrieving country", ex, new { name });
+            return Result<CountryResponse>.Failure("Failed to retrieve country due to a system error", ErrorType.InternalServerError);
         }
+    }
 
-        public async Task<Result<CountryResponse>> GetByCodeAsync(string code)
+    public async Task<Result<CountryResponse>> GetByCodeAsync(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+            return Result<CountryResponse>.Failure("Country code is required", ErrorType.BadRequest);
+
+        try
         {
-            if (string.IsNullOrEmpty(code))
-                return Result<CountryResponse>.Failure("Country code is required", ErrorType.BadRequest);
+            var country = await _repository.GetByCodeAsync(code);
 
-            try
+            if (country == null)
             {
-                var country = await _repository.GetByCodeAsync(code);
-
-                if (country == null)
-                {
-                    return Result<CountryResponse>.Failure(
-                        "Country not found with the specified code", ErrorType.NotFound);
-                }
-
-                var countryDto = _mapper.Map<CountryResponse>(country);
-                return Result<CountryResponse>.Success(countryDto);
+                return Result<CountryResponse>.Failure(
+                    "Country not found with the specified code", ErrorType.NotFound);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError("Database error retrieving country", ex, new { code });
-                return Result<CountryResponse>.Failure("Failed to retrieve country due to a system error",
-                    ErrorType.InternalServerError);
-            }
+
+            var countryDto = _mapper.Map<CountryResponse>(country);
+            return Result<CountryResponse>.Success(countryDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Database error retrieving country", ex, new { code });
+            return Result<CountryResponse>.Failure("Failed to retrieve country due to a system error",
+                ErrorType.InternalServerError);
         }
     }
 }

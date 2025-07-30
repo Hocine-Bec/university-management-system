@@ -16,12 +16,14 @@ namespace Applications.Services
         private readonly IPasswordHasher _hasher;
         private readonly IMapper _mapper;
         private readonly IMyLogger _logger;
+        private readonly IValidationService _validator;
 
-        public UserService(IUserRepository repository, IMyLogger logger, IMapper mapper, IPasswordHasher hasher)
+        public UserService(IUserRepository repository, IMyLogger logger, IMapper mapper, IPasswordHasher hasher, IValidationService validator)
         {
             _repository = repository;
             _mapper = mapper;
             _hasher = hasher;
+            _validator = validator;
             _logger = logger;
         }
 
@@ -178,8 +180,9 @@ namespace Applications.Services
             if (id <= 0)
                 return Result.Failure("Invalid user ID provided", ErrorType.BadRequest);
 
-            if (request == default)
-                return Result.Failure("Password information is required for update", ErrorType.BadRequest);
+            var validationResult = await _validator.ValidateAsync(request);
+            if (!validationResult.IsSuccess)
+                return Result.Failure(validationResult.Error, validationResult.ErrorType);
             
             try
             {

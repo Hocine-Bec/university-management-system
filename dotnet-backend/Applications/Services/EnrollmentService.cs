@@ -16,12 +16,14 @@ public class EnrollmentService : IEnrollmentService
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public EnrollmentService(IUnitOfWork uow, IMapper mapper, IMyLogger logger)
+    public EnrollmentService(IUnitOfWork uow, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _uow = uow;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<EnrollmentResponse>>> GetListAsync()
@@ -92,8 +94,9 @@ public class EnrollmentService : IEnrollmentService
 
     public async Task<Result<EnrollmentResponse>> AddAsync(EnrollmentRequest request)
     {
-        if (request == default)
-            return Result<EnrollmentResponse>.Failure("Enrollment data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<EnrollmentResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {
@@ -121,8 +124,9 @@ public class EnrollmentService : IEnrollmentService
 
     public async Task<Result> UpdateAsync(int id, EnrollmentRequest request)
     {
-        if (request == default)
-            return Result<EnrollmentResponse>.Failure("Enrollment data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -133,10 +137,10 @@ public class EnrollmentService : IEnrollmentService
             // Validate relationships if they're being updated
             if (request.StudentId.HasValue || request.ProgramId.HasValue || request.ServiceApplicationId.HasValue)
             {
-                var validationResult = await request.ValidatePrerequisitesAsync(_uow);
+                var prerequisiteResult = await request.ValidatePrerequisitesAsync(_uow);
                 
-                if (!validationResult.IsSuccess)
-                    return Result.Failure(validationResult.Error, validationResult.ErrorType);
+                if (!prerequisiteResult.IsSuccess)
+                    return Result.Failure(prerequisiteResult.Error, prerequisiteResult.ErrorType);
             }
 
             _mapper.Map(request, existingEnrollment);

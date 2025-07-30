@@ -14,12 +14,14 @@ public class DocsVerificationService : IDocsVerificationService
     private readonly IDocsVerificationRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public DocsVerificationService(IDocsVerificationRepository repository, IMapper mapper, IMyLogger logger)
+    public DocsVerificationService(IDocsVerificationRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
     
     public async Task<Result<IReadOnlyCollection<DocsVerificationResponse>>> GetListAsync()
@@ -90,8 +92,9 @@ public class DocsVerificationService : IDocsVerificationService
     }
     public async Task<Result<DocsVerificationResponse>> CreateAsync(DocsVerificationRequest request)
     {
-        if (request == default)
-            return Result<DocsVerificationResponse>.Failure("Verification data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<DocsVerificationResponse>.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -119,8 +122,9 @@ public class DocsVerificationService : IDocsVerificationService
     }
     public async Task<Result> UpdateAsync(int id, DocsVerificationRequest request)
     {
-        if (request == default)
-            return Result.Failure("Verification data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -144,8 +148,9 @@ public class DocsVerificationService : IDocsVerificationService
         if (id <= 0)
             return Result.Failure("Invalid ID Provided", ErrorType.BadRequest);
 
-        if(request == default)
-            return Result.Failure("Verification data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
             
         try
         {

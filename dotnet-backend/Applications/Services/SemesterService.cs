@@ -15,12 +15,14 @@ public class SemesterService : ISemesterService
     private readonly ISemesterRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public SemesterService(ISemesterRepository repository, IMapper mapper, IMyLogger logger)
+    public SemesterService(ISemesterRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<SemesterResponse>>> GetListAsync()
@@ -85,8 +87,9 @@ public class SemesterService : ISemesterService
     }
     public async Task<Result<SemesterResponse>> AddAsync(SemesterRequest request)
     {
-        if (request == default)
-            return Result<SemesterResponse>.Failure("Semester data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<SemesterResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         var result = request.GenerateTermCode(); 
         if(!result.IsSuccess || result.Value == null)
@@ -117,8 +120,9 @@ public class SemesterService : ISemesterService
     }
     public async Task<Result> UpdateAsync(int id, SemesterRequest request)
     {
-        if (request == default)
-            return Result.Failure("Semester data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {

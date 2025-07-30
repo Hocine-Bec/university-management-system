@@ -12,11 +12,13 @@ public class UserRoleService : IUserRoleService
 {
     private readonly IUserRoleRepository _repository;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public UserRoleService(IUserRoleRepository repository, IMyLogger logger)
+    public UserRoleService(IUserRoleRepository repository, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<UserRoleDto>> AssignRoleAsync(UserRoleDto request)
@@ -115,8 +117,9 @@ public class UserRoleService : IUserRoleService
     }
     public async Task<Result<UserRoleDto>> GetByUserAndRoleAsync(UserRoleDto request)
     {
-        if (request.UserId <= 0 || request.RoleId <= 0)
-            return Result<UserRoleDto>.Failure("User ID and Role ID must be greater than zero.", ErrorType.BadRequest);
+        var validationResult = _validator.Validate(request);
+        if (!validationResult.IsSuccess)
+            return Result<UserRoleDto>.Failure(validationResult.Error, validationResult.ErrorType);
 
         var userRole = request.FromDto();
 

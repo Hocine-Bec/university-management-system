@@ -13,11 +13,13 @@ public class RoleService : IRoleService
 {
     private readonly IRoleRepository _repository;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public RoleService(IRoleRepository repository, IMyLogger logger)
+    public RoleService(IRoleRepository repository, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<RoleDto>> GetByIdAsync(int id)
@@ -81,8 +83,9 @@ public class RoleService : IRoleService
     }
     public async Task<Result<RoleDto>> AddAsync(RoleDto request)
     {
-        if (request == default)
-            return Result<RoleDto>.Failure("Invalid role name provided.", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<RoleDto>.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -109,6 +112,10 @@ public class RoleService : IRoleService
     {
         if (id <= 0)
             return Result.Failure("Role ID must be a positive integer.", ErrorType.BadRequest);
+
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {

@@ -14,12 +14,14 @@ public class SectionService : ISectionService
     private readonly ISectionRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public SectionService(ISectionRepository repository, IMapper mapper, IMyLogger logger)
+    public SectionService(ISectionRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<SectionResponse>>> GetListAsync()
@@ -91,8 +93,9 @@ public class SectionService : ISectionService
 
     public async Task<Result<SectionResponse>> AddAsync(SectionRequest request)
     {
-        if (request == default)
-            return Result<SectionResponse>.Failure("Section information is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<SectionResponse>.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -119,8 +122,9 @@ public class SectionService : ISectionService
 
     public async Task<Result> UpdateAsync(int id, SectionRequest request)
     {
-        if (request == default)
-            return Result.Failure("Section information is required for update", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
