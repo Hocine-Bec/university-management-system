@@ -14,12 +14,14 @@ public class RegistrationService : IRegistrationService
     private readonly IRegistrationRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public RegistrationService(IRegistrationRepository repository, IMapper mapper, IMyLogger logger)
+    public RegistrationService(IRegistrationRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<RegistrationResponse>>> GetListAsync()
@@ -65,8 +67,9 @@ public class RegistrationService : IRegistrationService
 
     public async Task<Result<RegistrationResponse>> AddAsync(RegistrationRequest request)
     {
-        if(request == default)
-            return Result<RegistrationResponse>.Failure("Registration data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<RegistrationResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {
@@ -97,8 +100,9 @@ public class RegistrationService : IRegistrationService
 
     public async Task<Result> UpdateAsync(int id, RegistrationRequest request)
     {
-        if(request == default)
-            return Result.Failure("Registration data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {

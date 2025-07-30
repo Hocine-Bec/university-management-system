@@ -14,12 +14,14 @@ public class InterviewService : IInterviewService
     private readonly IInterviewRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
     
-    public InterviewService(IInterviewRepository repository, IMapper mapper, IMyLogger logger)
+    public InterviewService(IInterviewRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
     
     public async Task<Result<IReadOnlyCollection<InterviewResponse>>> GetListAsync()
@@ -64,9 +66,10 @@ public class InterviewService : IInterviewService
 
     public async Task<Result<InterviewResponse>> AddAsync(InterviewRequest request)
     {
-        if (request == default)
-            return Result<InterviewResponse>.Failure("Interview information is required", ErrorType.BadRequest);
-        
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<InterviewResponse>.Failure(validationResult.Error, validationResult.ErrorType);
+
         try
         {
             var interview = _mapper.Map<Interview>(request);
@@ -91,8 +94,9 @@ public class InterviewService : IInterviewService
 
     public async Task<Result> UpdateAsync(int id, InterviewRequest request)
     {
-        if (request == default)
-            return Result.Failure("Interview information is required for update", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -133,11 +137,9 @@ public class InterviewService : IInterviewService
         if (id <= 0)
             return Result.Failure("Invalid interview ID provided", ErrorType.BadRequest);
         
-        if (request == default)
-            return Result.Failure("Interview information is required", ErrorType.BadRequest);
-        
-        if (string.IsNullOrWhiteSpace(request.Recommendation))
-            return Result.Failure("Recommendation is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {

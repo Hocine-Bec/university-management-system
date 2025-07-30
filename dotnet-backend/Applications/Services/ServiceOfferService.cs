@@ -14,12 +14,14 @@ public class ServiceOfferService : IServiceOfferService
     private readonly IServiceOfferRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
     
-    public ServiceOfferService(IServiceOfferRepository repository, IMapper mapper, IMyLogger logger)
+    public ServiceOfferService(IServiceOfferRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
     
     public async Task<Result<IReadOnlyCollection<ServiceOfferResponse>>> GetListAsync()
@@ -67,8 +69,9 @@ public class ServiceOfferService : IServiceOfferService
 
     public async Task<Result<ServiceOfferResponse>> AddAsync(ServiceOfferRequest request)
     {
-        if (request == default)
-            return Result<ServiceOfferResponse>.Failure("Service offer information is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<ServiceOfferResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {
@@ -94,8 +97,9 @@ public class ServiceOfferService : IServiceOfferService
 
     public async Task<Result> UpdateAsync(int id, ServiceOfferRequest request)
     {
-        if (request == default)
-            return Result.Failure("Service offer information is required for update", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {

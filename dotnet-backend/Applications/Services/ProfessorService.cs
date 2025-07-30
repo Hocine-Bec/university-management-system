@@ -15,12 +15,14 @@ public class ProfessorService : IProfessorService
     private readonly IProfessorRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public ProfessorService(IProfessorRepository repository, IMapper mapper, IMyLogger logger)
+    public ProfessorService(IProfessorRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<ProfessorResponse>>> GetListAsync()
@@ -95,8 +97,9 @@ public class ProfessorService : IProfessorService
 
     public async Task<Result<ProfessorResponse>> AddAsync(ProfessorRequest request)
     {
-        if (request == default)
-            return Result<ProfessorResponse>.Failure("Professor information is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<ProfessorResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {
@@ -124,8 +127,9 @@ public class ProfessorService : IProfessorService
 
     public async Task<Result> UpdateAsync(int id, ProfessorRequest request)
     {
-        if (request == default)
-            return Result.Failure("Professor information is required for update", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {

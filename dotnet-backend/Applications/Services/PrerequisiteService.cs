@@ -14,12 +14,14 @@ public class PrerequisiteService : IPrerequisiteService
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public PrerequisiteService(IUnitOfWork uow, IMapper mapper, IMyLogger logger)
+    public PrerequisiteService(IUnitOfWork uow, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _uow = uow;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<PrerequisiteResponse>> GetByIdAsync(int id)
@@ -65,8 +67,9 @@ public class PrerequisiteService : IPrerequisiteService
     }
     public async Task<Result<PrerequisiteResponse>> AddAsync(PrerequisiteRequest request)
     {
-        if (request == default)
-            return Result<PrerequisiteResponse>.Failure("Prerequisite data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<PrerequisiteResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {
@@ -94,8 +97,10 @@ public class PrerequisiteService : IPrerequisiteService
         if (id <= 0)
             return Failure("Invalid prerequisite ID", ErrorType.BadRequest);
 
-        if (request == default)
-            return Result.Failure("Prerequisite data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
+        
         try
         {
             var result = await request.ValidateForCourseAsync(_uow);

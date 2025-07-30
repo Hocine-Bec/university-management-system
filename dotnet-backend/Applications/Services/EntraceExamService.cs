@@ -14,12 +14,14 @@ public class EntranceExamService : IEntranceExamService
     private readonly IEntranceExamRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
     
-    public EntranceExamService(IEntranceExamRepository repository, IMapper mapper, IMyLogger logger)
+    public EntranceExamService(IEntranceExamRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
     
     public async Task<Result<IReadOnlyCollection<EntranceExamResponse>>> GetListAsync()
@@ -172,11 +174,9 @@ public class EntranceExamService : IEntranceExamService
         if (id <= 0)
             return Result.Failure("Invalid entrance exam ID provided", ErrorType.BadRequest);
      
-        if(request == default)
-            return Result.Failure("Score data is required", ErrorType.BadRequest);
-        
-        if (request.Score is < 0 or > 100)
-            return Result.Failure("Score must be between 0 and 100", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {

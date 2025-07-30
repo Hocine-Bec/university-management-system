@@ -15,12 +15,14 @@ public class FinancialHoldService : IFinancialHoldService
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger; 
+    private readonly IValidationService _validator;
 
-    public FinancialHoldService(IUnitOfWork uow, IMapper mapper, IMyLogger logger)
+    public FinancialHoldService(IUnitOfWork uow, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _uow = uow;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<FinancialHoldResponse>>> GetListAsync()
@@ -88,6 +90,10 @@ public class FinancialHoldService : IFinancialHoldService
 
     public async Task<Result<FinancialHoldResponse>> AddAsync(FinancialHoldRequest request)
     {
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<FinancialHoldResponse>.Failure(validationResult.Error, validationResult.ErrorType);
+        
         try
         {
             var result = await request.ValidateFinancialHoldRequestAsync(_uow);
@@ -115,6 +121,10 @@ public class FinancialHoldService : IFinancialHoldService
 
     public async Task<Result> UpdateAsync(int id, FinancialHoldRequest request)
     {
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
+        
         try
         {
             var result = await request.ValidateFinancialHoldRequestAsync(_uow);
@@ -141,8 +151,9 @@ public class FinancialHoldService : IFinancialHoldService
 
     public async Task<Result> ResolveHoldAsync(int id, ResolveRequest request)
     {
-        if(request == default)
-            return Result.Failure("Resolution data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {

@@ -15,12 +15,14 @@ public class ServiceApplicationService : IServiceApplicationService
     private readonly IServiceApplicationRepository _repository;
     private readonly IMapper _mapper;
     private readonly IMyLogger _logger;
+    private readonly IValidationService _validator;
 
-    public ServiceApplicationService(IServiceApplicationRepository repository, IMapper mapper, IMyLogger logger)
+    public ServiceApplicationService(IServiceApplicationRepository repository, IMapper mapper, IMyLogger logger, IValidationService validator)
     {
         _repository = repository;
         _mapper = mapper;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<IReadOnlyCollection<ServiceApplicationResponse>>> GetListAsync()
@@ -91,8 +93,9 @@ public class ServiceApplicationService : IServiceApplicationService
 
     public async Task<Result<ServiceApplicationResponse>> AddAsync(ServiceApplicationCreateRequest request)
     {
-        if (request == default)
-            return Result<ServiceApplicationResponse>.Failure("Application data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result<ServiceApplicationResponse>.Failure(validationResult.Error, validationResult.ErrorType);
         
         try
         {
@@ -122,8 +125,9 @@ public class ServiceApplicationService : IServiceApplicationService
 
     public async Task<Result> UpdateAsync(int id, ServiceApplicationUpdateRequest request)
     {
-        if (request == default)
-            return Result.Failure("Application data is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
 
         try
         {
@@ -144,8 +148,10 @@ public class ServiceApplicationService : IServiceApplicationService
 
     public async Task<Result> UpdateStatusAsync(int id, ServiceApplicationUpdateStatusRequest request)
     {
-        if(request == default || !request.Status.HasValue)
-            return Result.Failure("Status information is required", ErrorType.BadRequest);
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsSuccess)
+            return Result.Failure(validationResult.Error, validationResult.ErrorType);
+        
         try
         {
             var application = await _repository.GetByIdAsync(id);
