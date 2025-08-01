@@ -16,7 +16,19 @@ public class RefreshTokenConfig : IEntityTypeConfiguration<RefreshToken>
             
         builder.HasIndex(rt => rt.Token)
             .IsUnique();
-            
+
+        builder.Property(x => x.RevokedReason)
+            .HasColumnName("revoked_reason")
+            .HasColumnType("varchar")
+            .HasMaxLength(200);
+        
+        builder.Property(x=>x.RevokedAt)
+            .HasColumnName("revoked_at")
+            .HasColumnType("datetime");
+        
+        builder.Property(x => x.UserId)
+            .HasColumnName("user_id");
+        
         builder.HasOne(rt => rt.User)
             .WithMany(u => u.RefreshTokens)
             .HasForeignKey(rt => rt.UserId)
