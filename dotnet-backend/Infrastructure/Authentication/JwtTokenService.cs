@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Applications.Interfaces.Auth;
 using Domain.Entities;
@@ -21,7 +22,7 @@ public class JwtTokenService : IJwtTokenService
     
     public string GenerateToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var claims = GetUserClaims(user);
         
@@ -53,11 +54,14 @@ public class JwtTokenService : IJwtTokenService
 
         if (_jwtSettings.LifeTime <= 0)
             throw new InvalidOperationException("JWT Lifetime must be greater than 0");
+        
+        if (_jwtSettings.RefreshTokenLifeTime <= 0)
+            throw new InvalidOperationException("JWT Refresh Token Lifetime must be greater than 0");
     }
     
-    public DateTimeOffset GetTokenExpiration()
+    public DateTime GetTokenExpiration()
     {
-        return DateTimeOffset.UtcNow.AddMinutes(_jwtSettings.LifeTime);
+        return DateTime.UtcNow.AddMinutes(_jwtSettings.LifeTime);
     }
     
     private List<Claim> GetUserClaims(User user)
@@ -78,5 +82,21 @@ public class JwtTokenService : IJwtTokenService
         }
 
         return claims;
+    }
+    
+    public RefreshToken GenerateRefreshToken(int userId)
+    {
+        return new RefreshToken
+        {
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+            ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenLifeTime),
+            CreatedAt = DateTime.UtcNow,
+            UserId = userId
+        };
+    }
+
+    public bool ValidateRefreshToken(RefreshToken token)
+    {
+        return !token.IsRevoked && token.ExpiresAt > DateTime.UtcNow;
     }
 }
