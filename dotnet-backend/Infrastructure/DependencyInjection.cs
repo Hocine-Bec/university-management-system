@@ -28,6 +28,7 @@ namespace Infrastructure
                 options.Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? throw new InvalidOperationException("JWT_ISSUER environment variable is not set");
                 options.Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? throw new InvalidOperationException("JWT_AUDIENCE environment variable is not set");
                 options.LifeTime = int.Parse(Environment.GetEnvironmentVariable("JWT_ACCESS_TOKEN_LIFETIME_MINUTES") ?? "15");
+                options.RefreshTokenLifeTime = int.Parse(Environment.GetEnvironmentVariable("JWT_REFRESH_TOKEN_LIFETIME_DAYS") ?? "7");
             });
 
             var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
@@ -79,6 +80,7 @@ namespace Infrastructure
             services.AddScoped<IFinancialHoldRepository, FinancialHoldRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             
             //Unit of work pattern
             services.AddScoped<IUnitOfWork, UnitOfWork>();

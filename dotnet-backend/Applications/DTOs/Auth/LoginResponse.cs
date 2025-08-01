@@ -4,6 +4,8 @@ namespace Applications.DTOs.Auth;
 //DTO
 public record struct LoginResponse
 {
-    public required string Token { get; set; }
-    public DateTimeOffset ExpiresAt { get; set; }
+    public string AccessToken { get; set; }
+    public string RefreshToken  { get; set; }
+    public DateTime AccessTokenExpires { get; set; }
+    public DateTime RefreshTokenExpires { get; set; }
 }

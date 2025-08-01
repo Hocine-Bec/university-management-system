@@ -1,4 +1,3 @@
-using Applications.DTOs.Auth;
 using Domain.Entities;
 
 namespace Applications.Interfaces.Auth;
@@ -6,5 +5,7 @@ namespace Applications.Interfaces.Auth;
 public interface IJwtTokenService
 {
     string GenerateToken(User user);
-    DateTimeOffset GetTokenExpiration();
+    DateTime GetTokenExpiration();
+    public RefreshToken GenerateRefreshToken(int userId);
+    public bool ValidateRefreshToken(RefreshToken token);
 }
