@@ -1,8 +1,10 @@
 using Applications;
 using Infrastructure;
 using DotNetEnv;
+using Infrastructure.Data;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +82,11 @@ if (app.Environment.IsDevelopment())
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json"); // Make sure Scalar uses the right endpoint
     });
+
+    // Auto-migrate database in development
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
 }
 
 app.UseHttpsRedirection();

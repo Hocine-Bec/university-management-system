@@ -106,10 +106,7 @@ namespace Infrastructure.Migrations
                     { 8, 8, 8, true }, // StudentLeader
                     { 9, 9, 9, true }, // ItSupport
                     { 10, 10, 10, true }, // Librarian
-                    { 11, 11, 3, true }, // Another Faculty
-                    { 12, 12, 5, true }, // Another Advisor
-                    { 13, 13, 7, true }, // Another Student
-                    { 14, 14, 1, true } // Admin
+                    { 11, 12, 1, true } // Admin
                 });
         }
 
